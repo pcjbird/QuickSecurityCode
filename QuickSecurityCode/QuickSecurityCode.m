@@ -24,12 +24,14 @@
 
 -(NSString *)code
 {
-    __block NSString* result = @"";
+    NSString* result = @"";
     if([self.labels isKindOfClass:[NSDictionary class]])
     {
-        [self.labels enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, UILabel * _Nonnull obj, BOOL * _Nonnull stop) {
-            result = [result stringByAppendingString:obj.text];
-        }];
+        for (NSInteger i = 0; i < self.digitsCount; i++)
+        {
+            UILabel *label = [self.labels objectForKey:@(i)];
+            result = [result stringByAppendingString:label.text];
+        }
     }
     return result;
 }
@@ -81,23 +83,23 @@
     
     for (NSInteger i = 0; i < self.digitsCount; i++)
     {
-        UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(margin+(itemWidth+spacing)*i, 0, itemWidth, itemHeight)];
+        UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(margin+(itemWidth+spacing)*i, (CGRectGetHeight(self.frame) - itemHeight)/2.0f, itemWidth, itemHeight)];
         label.tag = 100+i;
         label.backgroundColor = [UIColor whiteColor];
         label.textAlignment = NSTextAlignmentCenter;
         label.textColor = self.digitColor;
         label.font = self.digitFont;
-        [self setView:label cornerWithRadius:5.0f borderWidth:1.0f borderColor:self.disabledBorderColor];
+        [self setView:label cornerWithRadius:8.0f borderWidth:1.0f borderColor:self.disabledBorderColor];
         [self addSubview:label];
         [self.labels setObject:label forKey:@(i)];
     }
     
-    UITextField *textField = [[UITextField alloc] initWithFrame:CGRectMake(margin, 0, itemWidth, itemHeight)];
+    UITextField *textField = [[UITextField alloc] initWithFrame:CGRectMake(margin, (CGRectGetHeight(self.frame) - itemHeight)/2.0f, itemWidth, itemHeight)];
     textField.delegate = self;
     textField.textAlignment = NSTextAlignmentCenter;
-    [self setView:textField cornerWithRadius:5.0f borderWidth:1.0f borderColor:self.focusBorderColor];
+    [self setView:textField cornerWithRadius:8.0f borderWidth:1.0f borderColor:self.focusBorderColor];
     textField.keyboardType = UIKeyboardTypeNumberPad;
-    [textField setTintColor:[UIColor clearColor]];
+    [textField setTintColor:self.tintColor];
     [self addSubview:textField];
     _textField = textField;
     
@@ -125,7 +127,7 @@
     [super setTintColor:tintColor];
     if([self.textField isKindOfClass:[UITextField class]])
     {
-        [self.textField setTintColor:[UIColor clearColor]];
+        [self.textField setTintColor:self.tintColor];
     }
 }
 
@@ -178,16 +180,16 @@
     _digitsCount = _preferredSixDigits ? 6 : 4;
     [self setupInit];
 }
-         
+
 #pragma mark - UITextFieldDelegate
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
     for (NSInteger i = 0; i < self.digitsCount; i++)
     {
         UILabel *label = [self.labels objectForKey:@(i)];
-        if(label.text == 0)
+        if(label.text.length == 0)
         {
             label.text = string;
-            [self setView:label cornerWithRadius:5.0f borderWidth:1.0f borderColor:self.focusBorderColor];
+            [self setView:label cornerWithRadius:8.0f borderWidth:1.0f borderColor:self.focusBorderColor];
             if(i < self.digitsCount - 1)
             {
                 [self setView:_textField leftX:CGRectGetMinX([self.labels objectForKey:@(i+1)].frame)];
@@ -210,15 +212,34 @@
     for (NSInteger i = self.digitsCount - 1; i >= 0; i--)
     {
         UILabel *label = [self.labels objectForKey:@(i)];
-        if(label.text != 0)
+        if(label.text.length != 0)
         {
             label.text = @"";
-            [self setView:label cornerWithRadius:5.0f borderWidth:1.0f borderColor:self.disabledBorderColor];
-            if(i > 0)
-            {
-                [self setView:_textField leftX:CGRectGetMinX([self.labels objectForKey:@(i-1)].frame)];
-            }
+            [self setView:label cornerWithRadius:8.0f borderWidth:1.0f borderColor:self.disabledBorderColor];
+            
+            [self setView:_textField leftX:CGRectGetMinX([self.labels objectForKey:@(i)].frame)];
+            _textField.tintColor = self.tintColor;
             return;
+        }
+    }
+}
+
+- (void)textFieldBecomeFirstResponder:(UITextField *)textField
+{
+    if(textField == self.textField)
+    {
+        CGFloat textFieldLeftX = CGRectGetMinX(self.textField.frame);
+        if([self.labels isKindOfClass:[NSDictionary class]])
+        {
+            __weak typeof(self) weakSelf = self;
+            [self.labels enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, UILabel * _Nonnull obj, BOOL * _Nonnull stop) {
+                CGFloat left = CGRectGetMinX(obj.frame);
+                if(left == textFieldLeftX)
+                {
+                    weakSelf.textField.tintColor = (obj.text.length > 0) ? [UIColor clearColor] : weakSelf.tintColor;
+                    *stop = YES;
+                }
+            }];
         }
     }
 }
@@ -230,11 +251,11 @@
         __weak typeof(self) weakSelf = self;
         [self.labels enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, UILabel * _Nonnull obj, BOOL * _Nonnull stop) {
             obj.text = @"";
-            [weakSelf setView:obj cornerWithRadius:5.0f borderWidth:1.0f borderColor:weakSelf.disabledBorderColor];
+            [weakSelf setView:obj cornerWithRadius:8.0f borderWidth:1.0f borderColor:weakSelf.disabledBorderColor];
             if([@"0" isEqualToString:key])
             {
                 [weakSelf setView:weakSelf.textField leftX:CGRectGetMinX(obj.frame)];
-                [weakSelf setView:weakSelf.textField cornerWithRadius:5.0f borderWidth:1.0f borderColor:weakSelf.focusBorderColor];
+                [weakSelf setView:weakSelf.textField cornerWithRadius:8.0f borderWidth:1.0f borderColor:weakSelf.focusBorderColor];
                 [weakSelf.textField becomeFirstResponder];
             }
         }];
@@ -246,19 +267,6 @@
 - (void)drawRect:(CGRect)rect {
     // Drawing code
     [super drawRect:rect];
-    
-    CGContextRef ctx = UIGraphicsGetCurrentContext();
-    
-    if([self.labels isKindOfClass:[NSDictionary class]])
-    {
-        [self.labels enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, UILabel * _Nonnull obj, BOOL * _Nonnull stop) {
-            [obj drawLayer:obj.layer inContext:ctx];
-        }];
-    }
-    if([self.textField isKindOfClass:[UITextField class]])
-    {
-        [self.textField drawLayer:self.textField.layer inContext:ctx];
-    }
 }
 
 

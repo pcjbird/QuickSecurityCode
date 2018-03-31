@@ -12,6 +12,7 @@
 
 @optional
 - (void)textFieldDidDeleteBackward:(UITextField *)textField;
+- (void)textFieldBecomeFirstResponder:(UITextField *)textField;
 @end
 
 @interface UITextField (QuickSecurityCode)

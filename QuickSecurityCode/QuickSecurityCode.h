@@ -8,6 +8,10 @@
 //  框架名称:QuickSecurityCode
 //  框架功能:A security/verify code input control. 一个安全码/验证码输入控件，支持4位或6位的安全码/验证码。
 //  修改记录:
+//     pcjbird    2018-04-01  Version:1.0.1 Build:201804010002
+//                            1.设置光标只在无数字文本时显示
+//                            2.设置控件垂直居中
+//
 //     pcjbird    2018-04-01  Version:1.0.0 Build:201804010001
 //                            1.首次发布SDK版本
 //

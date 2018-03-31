@@ -33,15 +33,23 @@ pod 'QuickSecurityCode'
 
 @interface ViewController ()
 
-@property (weak, nonatomic) IBOutlet QuickSecurityCode *securityCodeCtrl;
+@property (weak, nonatomic) IBOutlet QuickSecurityCode *securityCodeCtrl1;
+@property (weak, nonatomic) IBOutlet QuickSecurityCode *securityCodeCtrl2;
 @end
 
 @implementation ViewController
 
 - (void)viewDidLoad {
-[super viewDidLoad];
-// Do any additional setup after loading the view, typically from a nib.
-self.securityCodeCtrl.digitColor = [UIColor colorWithRed:(0xff/255.0f) green:(0x00/255.0f) blue:(0xff/255.0f) alpha:1.0f];
+    [super viewDidLoad];
+    // Do any additional setup after loading the view, typically from a nib.
+    self.securityCodeCtrl1.digitFont = [UIFont boldSystemFontOfSize:18.0f];
+    self.securityCodeCtrl1.complete = ^(NSString *code) {
+    NSLog(@"SecurityCodeCtrl1: %@", code);
+    };
+
+    self.securityCodeCtrl2.complete = ^(NSString *code) {
+    NSLog(@"SecurityCodeCtrl2: %@", code);
+    };
 }
 
 @end
