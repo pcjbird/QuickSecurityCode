@@ -190,7 +190,7 @@
             [self setView:label cornerWithRadius:5.0f borderWidth:1.0f borderColor:self.focusBorderColor];
             if(i < self.digitsCount - 1)
             {
-                [self setView:_textField leftX:CGRectGetMinX([self.labels objectForKey:@(i+1)])];
+                [self setView:_textField leftX:CGRectGetMinX([self.labels objectForKey:@(i+1)].frame)];
             }
             else
             {
@@ -216,7 +216,7 @@
             [self setView:label cornerWithRadius:5.0f borderWidth:1.0f borderColor:self.disabledBorderColor];
             if(i > 0)
             {
-                [self setView:_textField leftX:CGRectGetMinX([self.labels objectForKey:@(i-1)])];
+                [self setView:_textField leftX:CGRectGetMinX([self.labels objectForKey:@(i-1)].frame)];
             }
             return;
         }
