@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
     s.name             = "QuickSecurityCode"
     s.version          = "1.0.0"
-    s.summary          = "A security/verify code input control. 一个安全码/验证码输入控件。"
+    s.summary          = "A security/verify code input control. 一个4位或6位数字的安全码/验证码输入控件。"
     s.description      = <<-DESC
     A security/verify code input control. 一个安全码/验证码输入控件，支持4位或6位的安全码/验证码。
     DESC
