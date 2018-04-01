@@ -9,7 +9,7 @@
 
 
 # QuickSecurityCode
-### A security/verify code input control. 一个安全码/验证码输入控件，支持4位或6位数字的安全码/验证码。
+### A security or sms verify code input control. 一个安全码/短信验证码输入控件，支持4位或6位数字的安全码/短信验证码。
 
 ## 特性 / Features
 
