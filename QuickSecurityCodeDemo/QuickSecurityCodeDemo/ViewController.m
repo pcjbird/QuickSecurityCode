@@ -13,6 +13,7 @@
 
 @property (weak, nonatomic) IBOutlet QuickSecurityCode *securityCodeCtrl1;
 @property (weak, nonatomic) IBOutlet QuickSecurityCode *securityCodeCtrl2;
+@property (weak, nonatomic) IBOutlet QuickSecurityCode *securityCodeCtrl3;
 @end
 
 @implementation ViewController
@@ -27,6 +28,11 @@
     
     self.securityCodeCtrl2.complete = ^(NSString *code) {
         NSLog(@"SecurityCodeCtrl2: %@", code);
+    };
+    
+    self.securityCodeCtrl3.digitFont = [UIFont boldSystemFontOfSize:18.0f];
+    self.securityCodeCtrl3.complete = ^(NSString *code) {
+        NSLog(@"SecurityCodeCtrl3: %@", code);
     };
 }
 

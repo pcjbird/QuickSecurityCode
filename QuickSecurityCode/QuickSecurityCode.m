@@ -185,6 +185,12 @@
     [self setNeedsDisplay];
 }
 
+-(void)setBounds:(CGRect)bounds
+{
+    [super setBounds:bounds];
+    [self setupInit];
+}
+
 - (void)setView:(UIView*)view cornerWithRadius:(CGFloat)radius borderWidth:(CGFloat)width borderColor:(UIColor *)color
 {
     if(![view isKindOfClass:[UIView class]]) return;

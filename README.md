@@ -18,6 +18,7 @@
 1. 支持4位或6位的安全码/验证码。
 2. 设置设置边框颜色，数字字体及颜色。
 3. 支持 xib, storyboard。
+4. 支持用下划线替代边框模式。
 
 ## 演示 / Demo
 
@@ -37,6 +38,7 @@ pod 'QuickSecurityCode'
 
 @property (weak, nonatomic) IBOutlet QuickSecurityCode *securityCodeCtrl1;
 @property (weak, nonatomic) IBOutlet QuickSecurityCode *securityCodeCtrl2;
+@property (weak, nonatomic) IBOutlet QuickSecurityCode *securityCodeCtrl3;
 @end
 
 @implementation ViewController
@@ -51,6 +53,11 @@ pod 'QuickSecurityCode'
 
     self.securityCodeCtrl2.complete = ^(NSString *code) {
     NSLog(@"SecurityCodeCtrl2: %@", code);
+    };
+    
+    self.securityCodeCtrl3.digitFont = [UIFont boldSystemFontOfSize:18.0f];
+    self.securityCodeCtrl3.complete = ^(NSString *code) {
+    NSLog(@"SecurityCodeCtrl3: %@", code);
     };
 }
 
