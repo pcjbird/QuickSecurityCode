@@ -8,6 +8,10 @@
 //  框架名称:QuickSecurityCode
 //  框架功能:A security/verify code input control. 一个安全码/验证码输入控件，支持4位或6位的安全码/验证码。
 //  修改记录:
+//     pcjbird    2018-11-05  Version:1.0.2 Build:201811150001
+//                            1.支持用下划线替代边框
+//                            2.支持下划线模式下是否展示动画
+//
 //     pcjbird    2018-04-01  Version:1.0.1 Build:201804010002
 //                            1.设置光标只在无数字文本时显示
 //                            2.设置控件垂直居中
@@ -56,6 +60,16 @@ typedef void(^QuickSecurityCodeBlock)(NSString *code);
  *@brief 不可用状态边框颜色 默认#CCCCCC
  */
 @property(nonatomic, strong) IBInspectable UIColor* disabledBorderColor;
+
+/**
+ *@brief 是否用下划线替代边框，默认FALSE
+ */
+@property(nonatomic, assign) IBInspectable BOOL     showUnderlineInsteadOfBorder;
+
+/**
+ *@brief 下划线模式下是否展示动画，默认YES
+ */
+@property(nonatomic, assign) IBInspectable BOOL     showAnimationWhenUnderlineMode;
 
 /**
  *@brief 数字颜色 默认#000000

@@ -9,6 +9,69 @@
 #import "QuickSecurityCode.h"
 #import "UITextField+QuickSecurityCode.h"
 
+@interface QuickSecurityCodeUnderline : UIView
+
+@property (nonatomic, weak) UIView *underline;
+
+-(void) performAnimation;
+
+@end
+
+@implementation QuickSecurityCodeUnderline
+
+- (instancetype)initWithFrame:(CGRect)frame
+{
+    if (self = [super initWithFrame:frame]) {
+        [self setupUnderline];
+    }
+    return self;
+}
+
+- (instancetype)initWithCoder:(NSCoder *)coder
+{
+    if (self = [super initWithCoder:coder]) {
+        [self setupUnderline];
+    }
+    return self;
+}
+
+#pragma mark - 初始化View
+- (void)setupUnderline
+{
+    UIView *underline = [UIView new];
+    [self addSubview:underline];
+    self.underline = underline;
+}
+
+- (void)layoutSubviews
+{
+    [super layoutSubviews];
+    self.underline.frame = self.bounds;
+}
+
+- (void)setBackgroundColor:(UIColor *)backgroundColor
+{
+    [super setBackgroundColor:[UIColor clearColor]];
+    self.underline.backgroundColor = backgroundColor;
+}
+
+-(void) performAnimation
+{
+    [self.underline.layer removeAllAnimations];
+    
+    CABasicAnimation *animation = [CABasicAnimation animationWithKeyPath:@"transform.scale.x"];
+    animation.duration = 0.18;
+    animation.repeatCount = 1;
+    animation.fromValue = @(1.0);
+    animation.toValue = @(0.1);
+    animation.autoreverses = YES;
+    
+    [self.underline.layer addAnimation:animation forKey:@"zoom.scale.x"];
+}
+
+@end
+
+
 @interface QuickSecurityCode()<QuickSecurityCodeTextFieldDelegate>
 
 @property(nonatomic, strong) NSString * code;
@@ -17,7 +80,7 @@
 
 @property (nonatomic, weak) UITextField *textField;
 @property (nonatomic, strong) NSMutableDictionary<id, UILabel*> *labels;
-
+@property (nonatomic, strong) NSMutableDictionary<id, QuickSecurityCodeUnderline*> *underlines;
 @end
 
 @implementation QuickSecurityCode
@@ -57,11 +120,14 @@
 {
     _digitsCount = 4;
     _preferredSixDigits = NO;
+    _showUnderlineInsteadOfBorder = NO;
+    _showAnimationWhenUnderlineMode = YES;
     _focusBorderColor = [UIColor colorWithRed:(0x05/255.0f) green:(0x7A/255.0f) blue:(0xDC/255.0f) alpha:1.0f];
     _disabledBorderColor = [UIColor colorWithRed:(0xCC/255.0f) green:(0xCC/255.0f) blue:(0xCC/255.0f) alpha:1.0f];
     _digitColor = [UIColor colorWithRed:(0x00/255.0f) green:(0x00/255.0f) blue:(0x00/255.0f) alpha:1.0f];
     _digitFont = [UIFont systemFontOfSize:17.0f];
     _labels = [NSMutableDictionary<id, UILabel*> dictionary];
+    _underlines = [NSMutableDictionary<id, QuickSecurityCodeUnderline*> dictionary];
 }
 
 -(void) setupInit
@@ -71,6 +137,7 @@
         [subview removeFromSuperview];
     }
     [self.labels removeAllObjects];
+    [self.underlines removeAllObjects];
     CGFloat itemWidth = 50.0f;
     CGFloat itemHeight = 50.0f;
     CGFloat spacing = 18.0f;
@@ -89,15 +156,26 @@
         label.textAlignment = NSTextAlignmentCenter;
         label.textColor = self.digitColor;
         label.font = self.digitFont;
-        [self setView:label cornerWithRadius:8.0f borderWidth:1.0f borderColor:self.disabledBorderColor];
+        if(!self.showUnderlineInsteadOfBorder)
+        {
+            [self setView:label cornerWithRadius:8.0f borderWidth:1.0f borderColor:self.disabledBorderColor];
+        }
         [self addSubview:label];
         [self.labels setObject:label forKey:@(i)];
+        
+        if(self.showUnderlineInsteadOfBorder)
+        {
+            QuickSecurityCodeUnderline *underline = [[QuickSecurityCodeUnderline alloc] initWithFrame:CGRectMake(margin+(itemWidth+spacing)*i, ((CGRectGetHeight(self.frame) + itemHeight)/2.0f) - 1.0f, itemWidth, 1.0f)];
+            underline.backgroundColor = self.disabledBorderColor;
+            [self addSubview:underline];
+            [self.underlines setObject:underline forKey:@(i)];
+        }
     }
     
     UITextField *textField = [[UITextField alloc] initWithFrame:CGRectMake(margin, (CGRectGetHeight(self.frame) - itemHeight)/2.0f, itemWidth, itemHeight)];
     textField.delegate = self;
     textField.textAlignment = NSTextAlignmentCenter;
-    [self setView:textField cornerWithRadius:8.0f borderWidth:1.0f borderColor:self.focusBorderColor];
+    if(!self.showUnderlineInsteadOfBorder)[self setView:textField cornerWithRadius:8.0f borderWidth:1.0f borderColor:self.focusBorderColor];
     textField.keyboardType = UIKeyboardTypeNumberPad;
     [textField setTintColor:self.tintColor];
     [self addSubview:textField];
@@ -120,6 +198,16 @@
 {
     if(![view isKindOfClass:[UIView class]]) return;
     view.frame = CGRectMake(left, CGRectGetMinY(view.frame), CGRectGetWidth(view.frame), CGRectGetHeight(view.frame));
+}
+
+- (void)performLabelAnimation:(UILabel *)label
+{
+    CABasicAnimation *animation = [CABasicAnimation animationWithKeyPath:@"transform.scale"];
+    animation.duration = 0.15;
+    animation.repeatCount = 1;
+    animation.fromValue = @(0.1);
+    animation.toValue = @(1);
+    [label.layer addAnimation:animation forKey:@"zoom"];
 }
 
 -(void)setTintColor:(UIColor *)tintColor
@@ -149,6 +237,12 @@
 -(void)setDisabledBorderColor:(UIColor *)disabledBorderColor
 {
     _disabledBorderColor = disabledBorderColor;
+    [self setupInit];
+}
+
+-(void)setShowUnderlineInsteadOfBorder:(BOOL)showUnderlineInsteadOfBorder
+{
+    _showUnderlineInsteadOfBorder = showUnderlineInsteadOfBorder;
     [self setupInit];
 }
 
@@ -186,10 +280,24 @@
     for (NSInteger i = 0; i < self.digitsCount; i++)
     {
         UILabel *label = [self.labels objectForKey:@(i)];
+        
         if(label.text.length == 0)
         {
             label.text = string;
-            [self setView:label cornerWithRadius:8.0f borderWidth:1.0f borderColor:self.focusBorderColor];
+            if(!self.showUnderlineInsteadOfBorder)
+            {
+                [self setView:label cornerWithRadius:8.0f borderWidth:1.0f borderColor:self.focusBorderColor];
+            }
+            else
+            {
+                QuickSecurityCodeUnderline *underline = [self.underlines objectForKey:@(i)];
+                [underline setBackgroundColor:self.focusBorderColor];
+                if(self.showAnimationWhenUnderlineMode)
+                {
+                    [underline performAnimation];
+                    [self performLabelAnimation:label];
+                }
+            }
             if(i < self.digitsCount - 1)
             {
                 [self setView:_textField leftX:CGRectGetMinX([self.labels objectForKey:@(i+1)].frame)];
@@ -215,8 +323,20 @@
         if(label.text.length != 0)
         {
             label.text = @"";
-            [self setView:label cornerWithRadius:8.0f borderWidth:1.0f borderColor:self.disabledBorderColor];
-            
+            if(!self.showUnderlineInsteadOfBorder)
+            {
+                [self setView:label cornerWithRadius:8.0f borderWidth:1.0f borderColor:self.disabledBorderColor];
+            }
+            else if(i < self.digitsCount - 1)
+            {
+                QuickSecurityCodeUnderline *underline = [self.underlines objectForKey:@(i+1)];
+                [underline setBackgroundColor:self.disabledBorderColor];
+                if(self.showAnimationWhenUnderlineMode)
+                {
+                    [underline performAnimation];
+                    [self performLabelAnimation:label];
+                }
+            }
             [self setView:_textField leftX:CGRectGetMinX([self.labels objectForKey:@(i)].frame)];
             _textField.tintColor = self.tintColor;
             return;
@@ -251,13 +371,26 @@
         __weak typeof(self) weakSelf = self;
         [self.labels enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, UILabel * _Nonnull obj, BOOL * _Nonnull stop) {
             obj.text = @"";
-            [weakSelf setView:obj cornerWithRadius:8.0f borderWidth:1.0f borderColor:weakSelf.disabledBorderColor];
+            if(!weakSelf.showUnderlineInsteadOfBorder)
+            {
+                [weakSelf setView:obj cornerWithRadius:8.0f borderWidth:1.0f borderColor:weakSelf.disabledBorderColor];
+            }
             if([@"0" isEqualToString:key])
             {
                 [weakSelf setView:weakSelf.textField leftX:CGRectGetMinX(obj.frame)];
-                [weakSelf setView:weakSelf.textField cornerWithRadius:8.0f borderWidth:1.0f borderColor:weakSelf.focusBorderColor];
+                if(!weakSelf.showUnderlineInsteadOfBorder)
+                {
+                    [weakSelf setView:weakSelf.textField cornerWithRadius:8.0f borderWidth:1.0f borderColor:weakSelf.focusBorderColor];
+                }
                 [weakSelf.textField becomeFirstResponder];
             }
+        }];
+    }
+    if(self.showUnderlineInsteadOfBorder && [self.underlines isKindOfClass:[NSDictionary class]])
+    {
+        __weak typeof(self) weakSelf = self;
+        [self.underlines enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, QuickSecurityCodeUnderline * _Nonnull obj, BOOL * _Nonnull stop) {
+            [obj setBackgroundColor:weakSelf.disabledBorderColor];
         }];
     }
 }
